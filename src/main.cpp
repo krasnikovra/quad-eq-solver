@@ -10,7 +10,7 @@ pair<complex<double>, complex<double>> SolveQuadraticEquation(const double a, co
     return pair<complex<double>, complex<double>>((-b + discriminantSqrt) / (2 * a), (-b - discriminantSqrt) / (2 * a));
 }
 
-ostream& operator<<(ostream& stream, const complex<double> complex) {
+ostream& operator<<(ostream& stream, const complex<double>& complex) {
     string res = to_string(complex.real());
     if (complex.imag() != 0.0)
         res += (complex.imag() > 0 ? "+" : "-") + to_string(abs(complex.imag())) + string("i");
