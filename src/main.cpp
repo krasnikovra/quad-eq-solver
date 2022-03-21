@@ -1,8 +1,9 @@
 #include <iostream>
 #include <complex>
 
+#define INF 100000000
 #define NO_ROOTS QuadEqRoots(0, 0, 0)
-#define INF_ROOTS QuadEqRoots(0, 0, INT_MAX)
+#define INF_ROOTS QuadEqRoots(0, 0, INF)
 
 using namespace std;
 using Complex = complex<double>;
@@ -28,19 +29,12 @@ QuadEqRoots SolveQuadraticEquation(const QuadEq& eq) {
         return QuadEqRoots(root, root, 1);
     }
     Complex discriminantSqrt = sqrt(Complex(eq.b * eq.b - 4 * eq.a * eq.c));
-    // here if we get two equal roots its degree is 2
-    // which states x^2=0 and x=0 will have different QuadEqRoots
     return QuadEqRoots((-eq.b + discriminantSqrt) / (2 * eq.a),
-        (-eq.b - discriminantSqrt) / (2 * eq.a), 2);
+        (-eq.b - discriminantSqrt) / (2 * eq.a), discriminantSqrt == 0.0 ? 1 : 2);
 }
 
 bool operator==(const Complex& a, const Complex& b) {
     return a.real() == b.real() && a.imag() == b.imag();
-}
-
-bool operator==(const QuadEqRoots& a, const QuadEqRoots& b) {
-    // roots can be exchanged but are being assumed still equal
-    return ((a.x1 == b.x1 && a.x2 == b.x2) || (a.x1 == b.x2 && a.x2 == b.x1)) && a.cnt == b.cnt;
 }
 
 ostream& operator<<(ostream& stream, const complex<double>& complex) {
@@ -58,30 +52,19 @@ QuadEq ReadEqFromCin() {
 }
 
 void PrintQuadEqRootsFancy(const QuadEqRoots& roots) {
-    // a=b=0 exceptional cases
-    if (roots == INF_ROOTS) {
-        cout << "Every complex is a root" << endl;
-        return;
-    }
-    else if (roots == NO_ROOTS) {
+    switch (roots.cnt) {
+    case 0:
         cout << "Equation has no roots" << endl;
-        return;
-    }
-    // linear case
-    else if (roots.cnt == 1) {
+        break;
+    case INF: 
+        cout << "Every complex is a root" << endl;
+        break;
+    case 1:
         cout << "The root is " << roots.x1 << endl;
-        return;
-    }
-    // common quad eq case
-    else {
-        if (roots.x1 == roots.x2) {
-            cout << "The 2nd degree root is " << roots.x1 << endl;
-            return;
-        }
-        else {
-            cout << "The roots are " << roots.x1 << " and " << roots.x2 << endl;
-            return;
-        }
+        break;
+    case 2:
+        cout << "The roots are " << roots.x1 << " and " << roots.x2 << endl;
+        break;
     }
 }
 
