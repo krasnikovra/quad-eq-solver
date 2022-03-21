@@ -3,11 +3,20 @@
 
 using namespace std;
 
-pair<complex<double>, complex<double>> SolveQuadraticEquation(const double a, const double b, const double c) {
-    if (a == 0.0)
-        throw string("Not a quadratic equation.");
-    complex<double> discriminantSqrt = sqrt(complex<double>(b * b - 4 * a * c));
-    return pair<complex<double>, complex<double>>((-b + discriminantSqrt) / (2 * a), (-b - discriminantSqrt) / (2 * a));
+using QuadEqRoots = pair<complex<double>, complex<double>>;
+
+struct QuadEq {
+    double a, b, c;
+};
+
+QuadEqRoots SolveQuadraticEquation(const QuadEq& eq, bool* isOk) {
+    if (eq.a == 0.0) {
+        *isOk = false;
+        return QuadEqRoots(0, 0);
+    }
+    complex<double> discriminantSqrt = sqrt(complex<double>(eq.b * eq.b - 4 * eq.a * eq.c));
+    *isOk = true;
+    return QuadEqRoots((-eq.b + discriminantSqrt) / (2 * eq.a), (-eq.b - discriminantSqrt) / (2 * eq.a));
 }
 
 ostream& operator<<(ostream& stream, const complex<double>& complex) {
@@ -17,20 +26,33 @@ ostream& operator<<(ostream& stream, const complex<double>& complex) {
     return stream << res;
 }
 
-int main() {
-    double a = 0, b = 0, c = 0;
+QuadEq ReadEqFromCin() {
+    QuadEq res;
     cout << "Input a, b, c of quadratic equation ax^2 + bx + c = 0" << endl;
-    cin >> a >> b >> c;
-    try {
-        auto roots = SolveQuadraticEquation(a, b, c);
-        if (roots.first == roots.second)
-            cout << "Its root is " << roots.first << endl;
-        else
-            cout << "Its roots are " << roots.first << " and " << roots.second << endl;
-        return 0;
-    }
-    catch (const string& err) {
-        cout << "An error occured: " << endl << err << endl;
-        return -1;
-    }
+    cin >> res.a >> res.b >> res.c;
+    return res;
+}
+
+void PrintQuadEqRootsFancy(const QuadEqRoots& roots) {
+    if (roots.first == roots.second)
+        cout << "The root is " << roots.first << endl;
+    else
+        cout << "The roots are " << roots.first << " and " << roots.second << endl;
+}
+
+bool PrintQuadEqSolution(const QuadEq& eq) {
+    bool isOk = false;
+    QuadEqRoots roots = SolveQuadraticEquation(eq, &isOk);
+    if (isOk)
+        PrintQuadEqRootsFancy(roots);
+    else
+        cout << "Not a quadratic equation" << endl;
+    return isOk;
+}
+
+int main() {
+    // we are getting some quad eq from user
+    QuadEq eq = ReadEqFromCin();
+    // and giving user back its roots
+    return PrintQuadEqSolution(eq) ? 0 : -1;
 }
