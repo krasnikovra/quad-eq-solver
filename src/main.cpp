@@ -1,12 +1,51 @@
 #include <iostream>
 #include <complex>
 
-#define INF 100000000
-#define NO_ROOTS QuadEqRoots(0, 0, 0)
-#define INF_ROOTS QuadEqRoots(0, 0, INF)
-
 using namespace std;
 using Complex = complex<double>;
+
+class QuadEqRoots {
+public:
+    enum class Count {
+        NO,
+        ONE,
+        TWO,
+        INF
+    };
+
+    QuadEqRoots(const Complex& x) : _x1(x), _x2(x), _count(Count::ONE) {}
+    QuadEqRoots(const Complex& x1, const Complex& x2) : _x1(x1), _x2(x2), 
+        _count(x1 == x2 ? Count::ONE : Count::TWO) {}
+    Complex GetX1() const noexcept { return _x1; }
+    Complex GetX2() const noexcept { return _x2; }
+    Count GetCount() const noexcept { return _count; }
+    static QuadEqRoots NoRoots() noexcept { return QuadEqRoots(0, 0, Count::NO); };
+    static QuadEqRoots InfRoots() noexcept { return QuadEqRoots(0, 0, Count::INF); };
+    bool operator==(const QuadEqRoots& roots) noexcept;
+private:
+    QuadEqRoots(const Complex& x1, const Complex& x2, const Count& count) noexcept :
+        _x1(x1), _x2(x2), _count(count) {
+    }
+
+    Complex _x1, _x2;
+    Count _count;
+};
+
+bool QuadEqRoots::operator==(const QuadEqRoots& roots) noexcept {
+    switch (_count) {
+    case Count::NO:
+    case Count::INF:
+        return _count == roots._count;
+    case Count::ONE:
+        return (_count == roots._count) && (_x1 == roots._x1);
+    case Count::TWO:
+        // roots can be exchanged but are being assumed still equal
+        return _count == roots._count &&
+            ((_x1 == roots._x1 && _x2 == roots._x2) || (_x1 == roots._x2 && _x2 == roots._x1));
+    default:
+        return false;
+    }
+}
 
 struct QuadEq {
     double a, b, c;
@@ -14,23 +53,15 @@ struct QuadEq {
     QuadEq(const double a_, const double b_, const double c_) : a(a_), b(b_), c(c_) {}
 };
 
-struct QuadEqRoots {
-    Complex x1, x2;
-    size_t cnt;
-    QuadEqRoots(const Complex& x1_, const Complex& x2_, const size_t cnt_) :
-        x1(x1_), x2(x2_), cnt(cnt_) {}
-};
-
 QuadEqRoots SolveQuadraticEquation(const QuadEq& eq) {
     if (eq.a == 0.0) {
         if (eq.b == 0.0)
-            return eq.c == 0.0 ? INF_ROOTS : NO_ROOTS;
-        Complex root(-eq.c / eq.b);
-        return QuadEqRoots(root, root, 1);
+            return eq.c == 0.0 ? QuadEqRoots::InfRoots() : QuadEqRoots::NoRoots();
+        return QuadEqRoots(-eq.c / eq.b);
     }
     Complex discriminantSqrt = sqrt(Complex(eq.b * eq.b - 4 * eq.a * eq.c));
     return QuadEqRoots((-eq.b + discriminantSqrt) / (2 * eq.a),
-        (-eq.b - discriminantSqrt) / (2 * eq.a), discriminantSqrt == 0.0 ? 1 : 2);
+        (-eq.b - discriminantSqrt) / (2 * eq.a));
 }
 
 bool operator==(const Complex& a, const Complex& b) {
@@ -52,18 +83,18 @@ QuadEq ReadEqFromCin() {
 }
 
 void PrintQuadEqRootsFancy(const QuadEqRoots& roots) {
-    switch (roots.cnt) {
-    case 0:
+    switch (roots.GetCount()) {
+    case QuadEqRoots::Count::NO:
         cout << "Equation has no roots" << endl;
         break;
-    case INF: 
+    case QuadEqRoots::Count::INF:
         cout << "Every complex is a root" << endl;
         break;
-    case 1:
-        cout << "The root is " << roots.x1 << endl;
+    case QuadEqRoots::Count::ONE:
+        cout << "The root is " << roots.GetX1() << endl;
         break;
-    case 2:
-        cout << "The roots are " << roots.x1 << " and " << roots.x2 << endl;
+    case QuadEqRoots::Count::TWO:
+        cout << "The roots are " << roots.GetX1() << " and " << roots.GetX1() << endl;
         break;
     }
 }
