@@ -21,7 +21,6 @@ public:
     Count GetCount() const noexcept { return _count; }
     static QuadEqRoots NoRoots() noexcept { return QuadEqRoots(0, 0, Count::NO); };
     static QuadEqRoots InfRoots() noexcept { return QuadEqRoots(0, 0, Count::INF); };
-    bool operator==(const QuadEqRoots& roots) noexcept;
 private:
     QuadEqRoots(const Complex& x1, const Complex& x2, const Count& count) noexcept :
         _x1(x1), _x2(x2), _count(count) {
@@ -30,22 +29,6 @@ private:
     Complex _x1, _x2;
     Count _count;
 };
-
-bool QuadEqRoots::operator==(const QuadEqRoots& roots) noexcept {
-    switch (_count) {
-    case Count::NO:
-    case Count::INF:
-        return _count == roots._count;
-    case Count::ONE:
-        return (_count == roots._count) && (_x1 == roots._x1);
-    case Count::TWO:
-        // roots can be exchanged but are being assumed still equal
-        return _count == roots._count &&
-            ((_x1 == roots._x1 && _x2 == roots._x2) || (_x1 == roots._x2 && _x2 == roots._x1));
-    default:
-        return false;
-    }
-}
 
 struct QuadEq {
     double a, b, c;
