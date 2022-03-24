@@ -33,7 +33,7 @@ QuadEq ReadEqFromCin() {
 }
 
 void PrintQuadEqRootsFancy(const QuadEqRoots& roots) {
-    switch (roots.GetCount()) {
+    switch (roots.getCount()) {
     case QuadEqRoots::Count::NO:
         cout << "Equation has no roots" << endl;
         break;
@@ -41,10 +41,10 @@ void PrintQuadEqRootsFancy(const QuadEqRoots& roots) {
         cout << "Every complex is a root" << endl;
         break;
     case QuadEqRoots::Count::ONE:
-        cout << "The root is " << roots.GetX1() << endl;
+        cout << "The root is " << roots.getX1() << endl;
         break;
     case QuadEqRoots::Count::TWO:
-        cout << "The roots are " << roots.GetX1() << " and " << roots.GetX1() << endl;
+        cout << "The roots are " << roots.getX1() << " and " << roots.getX1() << endl;
         break;
     }
 }
